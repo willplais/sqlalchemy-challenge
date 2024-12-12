@@ -14,7 +14,6 @@ from sqlalchemy import create_engine, func
 
 from flask import Flask, jsonify
 
-
 #################################################
 # Database Setup
 #################################################
@@ -39,8 +38,6 @@ session = Session(engine)
 # Flask Setup
 #################################################
 app = Flask(__name__)
-
-
 
 #################################################
 # Flask Routes
@@ -105,6 +102,12 @@ def tobs():
 
 @app.route("/api/v1.0/<start>")
 def start(start):
+    # Test whether the start date is valid
+    try:
+        startDate = dt.datetime.strptime(start, '%Y-%m-%d')
+    except:
+        return jsonify({"error": "Invalid date format: YYYY-MM-DD"}), 400
+    
     # Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start date.
     activeData = session.query(func.Min(Measurement.tobs), func.Avg(Measurement.tobs), func.Max(Measurement.tobs)).\
         filter(Measurement.date >= start).first()
@@ -113,6 +116,13 @@ def start(start):
 
 @app.route("/api/v1.0/<start>/<end>")
 def startend(start, end):
+    # Test whether the start or end date is valid
+    try:
+        startDate = dt.datetime.strptime(start, '%Y-%m-%d')
+        endDate = dt.datetime.strptime(end, '%Y-%m-%d')
+    except:
+        return jsonify({"error": "Invalid date format: YYYY-MM-DD"}), 400
+    
     # Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start and end date.
     activeData = session.query(func.Min(Measurement.tobs), func.Avg(Measurement.tobs), func.Max(Measurement.tobs)).\
         filter(Measurement.date >= start).\
@@ -120,5 +130,6 @@ def startend(start, end):
 
     return jsonify(list(np.ravel(activeData)))
 
+# Start the application
 if __name__ == "__main__":
     app.run(debug=True)
