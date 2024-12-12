@@ -113,7 +113,7 @@ def start(start):
 
 @app.route("/api/v1.0/<start>/<end>")
 def startend(start, end):
-    # Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start date.
+    # Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start and end date.
     activeData = session.query(func.Min(Measurement.tobs), func.Avg(Measurement.tobs), func.Max(Measurement.tobs)).\
         filter(Measurement.date >= start).\
         filter(Measurement.date <= end).first()
